@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Showdown — AI-Powered Fast Food Recommendations</title>
+  <meta name="description" content="Food Showdown reads how your family feels and recommends the perfect fast food spot in seconds. Free, no account needed." />
+  <meta property="og:title" content="Food Showdown — AI-Powered Fast Food Recommendations" />
+  <meta property="og:description" content="Stop arguing about where to eat. Food Showdown picks the best fast food for your family based on budget, mood, and diet." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Food Showdown — AI-Powered Fast Food Recommendations" />
+  <meta name="twitter:description" content="Stop arguing about where to eat. Food Showdown picks the best fast food for your family in seconds." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --orange:      #F4621F;
+      --orange-light:#FF8047;
+      --orange-dark: #D44E10;
+      --amber:       #F59E0B;
+      --cream:       #FDFAF7;
+      --cream-dark:  #F5F0EA;
+      --dark:        #111827;
+      --dark-2:      #1F2937;
+      --gray:        #6B7280;
+      --gray-light:  #9CA3AF;
+      --border:      #E5E7EB;
+      --white:       #FFFFFF;
+      --radius-sm:   10px;
+      --radius-md:   16px;
+      --radius-lg:   24px;
+      --shadow-sm:   0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md:   0 4px 16px rgba(0,0,0,0.07), 0 2px 6px rgba(0,0,0,0.04);
+      --shadow-lg:   0 12px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SCROLL ANIMATIONS ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .fade-up-delay-1 { transition-delay: 0.08s; }
+    .fade-up-delay-2 { transition-delay: 0.16s; }
+    .fade-up-delay-3 { transition-delay: 0.24s; }
+    .fade-up-delay-4 { transition-delay: 0.32s; }
+    .fade-up-delay-5 { transition-delay: 0.40s; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.25rem, 4vw, 3rem);
+      background: rgba(253, 250, 247, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+    }
+    .nav-left { display: flex; align-items: center; gap: 2.5rem; }
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: var(--dark);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-logo span { color: var(--orange); }
+    .nav-links { display: flex; gap: 1.75rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--dark); }
+    .nav-links a.active { color: var(--orange); font-weight: 700; }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-sign-in {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--dark);
+      text-decoration: none;
+      padding: 0.45rem 1rem;
+      border-radius: 50px;
+      border: 1.5px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .nav-sign-in:hover { background: var(--cream-dark); border-color: var(--border); }
+    .nav-cta {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: white;
+      background: var(--orange);
+      text-decoration: none;
+      padding: 0.5rem 1.15rem;
+      border-radius: 50px;
+      transition: background 0.15s, transform 0.15s;
+      box-shadow: 0 2px 10px rgba(244, 98, 31, 0.3);
+    }
+    .nav-cta:hover { background: var(--orange-dark); transform: translateY(-1px); }
+    @media (max-width: 640px) {
+      .nav-links, .nav-sign-in { display: none; }
+    }
+
+    /* ── SHARED SECTION STYLES ── */
+    section { padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 4vw, 3rem); }
+    .section-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      line-height: 1.15;
+      color: var(--dark);
+      margin-bottom: 1rem;
+    }
+    .section-sub {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--gray);
+      max-width: 500px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      padding-top: calc(68px + clamp(3rem, 8vw, 6rem));
+      padding-bottom: clamp(3rem, 6vw, 5rem);
+      padding-left: clamp(1.25rem, 4vw, 3rem);
+      padding-right: clamp(1.25rem, 4vw, 3rem);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1160px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: fixed;
+      top: 0; right: 0;
+      width: 60vw; height: 100vh;
+      background: radial-gradient(ellipse 70% 60% at 85% 40%, rgba(244,98,31,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; text-align: center; gap: 3rem; }
+      .hero-text .section-sub, .hero-text .hero-buttons { margin-left: auto; margin-right: auto; }
+      .hero-text .hero-buttons { justify-content: center; }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(244, 98, 31, 0.08);
+      color: var(--orange);
+      border: 1px solid rgba(244, 98, 31, 0.2);
+      border-radius: 50px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -1.8px;
+      margin-bottom: 1.25rem;
+      color: var(--dark);
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--orange);
+    }
+    .hero-text .section-sub {
+      font-size: 1.05rem;
+      max-width: 440px;
+      margin-bottom: 2.25rem;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--orange);
+      color: white;
+      padding: 0.8rem 1.75rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, transform 0.15s;
+      box-shadow: 0 4px 18px rgba(244, 98, 31, 0.32);
+    }
+    .btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); }
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: transparent;
+      color: var(--dark);
+      padding: 0.8rem 1.75rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-outline:hover { border-color: var(--orange); color: var(--orange); background: rgba(244,98,31,0.04); }
+
+    /* hero mock card */
+    .hero-visual { position: relative; }
+    .hero-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .hero-card-top {
+      background: var(--dark-2);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .dot-r { width: 10px; height: 10px; border-radius: 50%; background: #FF5F57; }
+    .dot-y { width: 10px; height: 10px; border-radius: 50%; background: #FEBC2E; }
+    .dot-g { width: 10px; height: 10px; border-radius: 50%; background: #28C840; }
+    .hero-card-body { padding: 1.25rem; }
+    .chat-user-msg {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .chat-bubble-user {
+      background: var(--orange);
+      color: white;
+      border-radius: 18px 18px 4px 18px;
+      padding: 0.65rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      max-width: 82%;
+    }
+    .chat-ai-label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0.75rem;
+    }
+    .ai-dot {
+      width: 26px; height: 26px;
+      background: linear-gradient(135deg, var(--orange), var(--amber));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+    }
+    .chat-ai-label span { font-size: 0.78rem; font-weight: 600; color: var(--gray); }
+    .mock-rec {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.6rem;
+    }
+    .mock-rec:last-child { margin-bottom: 0; }
+    .mock-rec-icon { font-size: 1.75rem; min-width: 36px; text-align: center; }
+    .mock-rec-info h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.1rem; }
+    .mock-rec-info .mock-stars { color: var(--amber); font-size: 0.7rem; margin-bottom: 0.1rem; }
+    .mock-rec-info p { font-size: 0.76rem; color: var(--gray); line-height: 1.45; }
+    .mock-rec-badge {
+      margin-left: auto;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--orange);
+      background: rgba(244,98,31,0.08);
+      padding: 0.18rem 0.55rem;
+      border-radius: 50px;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+    .hero-card-footer {
+      border-top: 1px solid var(--border);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--cream);
+    }
+    .footer-input-mock {
+      flex: 1;
+      font-size: 0.82rem;
+      color: var(--gray-light);
+    }
+    .footer-send {
+      width: 30px; height: 30px;
+      background: var(--orange);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      color: white;
+    }
+
+    /* floating badge */
+    .hero-float-badge {
+      position: absolute;
+      bottom: -16px;
+      left: -20px;
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.82rem;
+    }
+    .float-icon { font-size: 1.4rem; }
+    .float-label { font-weight: 700; color: var(--dark); line-height: 1.2; }
+    .float-sub { font-size: 0.72rem; color: var(--gray); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--dark);
+      padding: 1.75rem clamp(1.25rem, 4vw, 3rem);
+    }
+    .stats-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2.5rem 4rem;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-size: 2.4rem;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      color: white;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .stat-num span { color: var(--orange); }
+    .stat-label { font-size: 0.82rem; color: rgba(255,255,255,0.55); font-weight: 500; letter-spacing: 0.2px; }
+
+    /* ── HOW IT WORKS ── */
+    .how { background: white; }
+    .how-inner { max-width: 1060px; margin: 0 auto; }
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+      position: relative;
+    }
+    @media (max-width: 700px) { .how-grid { grid-template-columns: 1fr; } }
+    .how-grid::before {
+      content: '';
+      position: absolute;
+      top: 36px;
+      left: calc(16.6% + 36px);
+      right: calc(16.6% + 36px);
+      height: 2px;
+      background: repeating-linear-gradient(90deg, var(--border) 0px, var(--border) 6px, transparent 6px, transparent 14px);
+    }
+    @media (max-width: 700px) { .how-grid::before { display: none; } }
+    .how-step {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-left: 3px solid transparent;
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      padding-left: calc(1.75rem - 2px);
+      position: relative;
+      transition: box-shadow 0.2s, border-color 0.2s, border-left-color 0.2s;
+    }
+    .how-step:hover { box-shadow: var(--shadow-md); border-color: rgba(244,98,31,0.25); border-left-color: var(--orange); }
+    .step-num {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--orange);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .how-step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.2px; }
+    .how-step p { font-size: 0.875rem; color: var(--gray); line-height: 1.7; }
+
+    /* ── TOP RATED ── */
+    .top-rated-inner { max-width: 1120px; margin: 0 auto; }
+    .top-rated-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .top-rated-header .section-sub { margin-bottom: 0; max-width: 420px; }
+    .last-updated {
+      font-size: 0.75rem;
+      color: var(--gray-light);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: #22C55E;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+
+    .top-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.25rem;
+    }
+    .top-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .top-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+    .top-card-header {
+      height: 96px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rank-pill {
+      position: absolute;
+      top: 10px; left: 12px;
+      background: rgba(0,0,0,0.28);
+      color: white;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 0.18rem 0.55rem;
+      border-radius: 50px;
+    }
+    .trending-pill {
+      position: absolute;
+      top: 10px; right: 12px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .card-emoji { font-size: 2.8rem; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); }
+
+    .top-card-body { padding: 1.15rem 1.2rem 1.3rem; }
+    .card-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; }
+    .card-stars { color: var(--amber); font-size: 0.78rem; letter-spacing: 0.5px; }
+    .card-review-count { font-size: 0.72rem; color: var(--gray-light); }
+    .top-card-body h3 { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 0.55rem; }
+
+    .card-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.9rem; }
+    .card-tag {
+      background: var(--cream-dark);
+      color: var(--dark-2);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 50px;
+      border: 1px solid var(--border);
+    }
+
+    .card-quote {
+      font-size: 0.82rem;
+      color: var(--gray);
+      line-height: 1.6;
+      font-style: italic;
+      padding-left: 0.75rem;
+      border-left: 2.5px solid var(--orange);
+      margin-bottom: 1rem;
+    }
+    .card-reasons { background: var(--cream); border-radius: var(--radius-sm); padding: 0.8rem 0.95rem; }
+    .card-reasons-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--orange);
+      margin-bottom: 0.45rem;
+    }
+    .card-reasons ul { list-style: none; display: flex; flex-direction: column; gap: 0.28rem; }
+    .card-reasons li {
+      font-size: 0.78rem;
+      color: var(--dark);
+      padding-left: 1rem;
+      position: relative;
+      line-height: 1.4;
+    }
+    .card-reasons li::before {
+      content: '✓';
+      position: absolute; left: 0;
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
+    /* ── FEATURES ── */
+    .features { background: white; }
+    .features-inner { max-width: 1060px; margin: 0 auto; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.25rem;
+      margin-top: 3rem;
+    }
+    .feature-card {
+      background: var(--cream);
+      border: 1px solid rgba(229,231,235,0.7);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); border-color: rgba(244,98,31,0.2); }
+    .card-num-bg {
+      position: absolute;
+      bottom: -0.6rem;
+      right: 0.75rem;
+      font-size: 5.5rem;
+      font-weight: 900;
+      color: rgba(244, 98, 31, 0.07);
+      line-height: 1;
+      letter-spacing: -3px;
+      pointer-events: none;
+      user-select: none;
+    }
+    .card-num-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .feature-icon-wrap {
+      width: 48px; height: 48px;
+      background: rgba(244, 98, 31, 0.08);
+      border: 1.5px solid rgba(244, 98, 31, 0.18);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: 1.1rem;
+    }
+    .feature-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .feature-card p { font-size: 0.85rem; color: var(--gray); line-height: 1.65; }
+
+    /* ── DEMO ── */
+    .demo { background: var(--dark-2); color: white; }
+    .demo-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+    .demo .section-eyebrow { color: var(--amber); }
+    .demo .section-title { color: white; }
+    .demo .section-sub { color: rgba(255,255,255,0.55); margin: 0 auto 2rem; }
+
+    .demo-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+    .demo-pill {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.8);
+      border-radius: 50px;
+      padding: 0.48rem 1rem;
+      font-size: 0.83rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .demo-pill:hover, .demo-pill.active {
+      background: rgba(244,98,31,0.2);
+      border-color: var(--orange);
+      color: white;
+    }
+    .demo-input-row { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .demo-input {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      color: white;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .demo-input::placeholder { color: rgba(255,255,255,0.55); }
+    .demo-input:focus { border-color: var(--orange); }
+    .demo-ask-btn {
+      background: var(--orange);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .demo-ask-btn:hover { background: var(--orange-dark); }
+    .demo-ask-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .demo-loading { display: none; justify-content: center; gap: 6px; padding: 1.25rem; }
+    .demo-loading.visible { display: flex; }
+    .ldot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; animation: ldot 1.1s infinite ease-in-out; }
+    .ldot:nth-child(2) { animation-delay: 0.18s; }
+    .ldot:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes ldot { 0%,80%,100%{transform:scale(0.6);opacity:0.35} 40%{transform:scale(1);opacity:1} }
+
+    .demo-result {
+      background: white;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      text-align: left;
+      display: none;
+    }
+    .demo-result.visible { display: block; animation: fadeSlide 0.35s ease; }
+    @keyframes fadeSlide { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+    .result-header {
+      background: var(--cream);
+      padding: 0.9rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .result-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--orange); white-space: nowrap; }
+    .result-q { font-size: 0.85rem; color: var(--dark); font-style: italic; }
+    .result-recs { padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .result-rec {
+      display: flex; align-items: flex-start; gap: 0.9rem;
+      padding: 0.85rem 1rem;
+      background: var(--cream);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      animation: fadeSlide 0.3s ease both;
+    }
+    .result-rec:nth-child(2){animation-delay:0.08s}
+    .result-rec:nth-child(3){animation-delay:0.16s}
+    .rr-emoji { font-size: 1.85rem; min-width: 40px; text-align: center; padding-top: 2px; }
+    .rr-body h4 { font-size: 0.9rem; font-weight: 800; color: var(--dark); margin-bottom: 0.12rem; }
+    .rr-body .rr-stars { color: var(--amber); font-size: 0.72rem; margin-bottom: 0.18rem; }
+    .rr-body p { font-size: 0.8rem; color: var(--gray); line-height: 1.5; }
+    .rr-tag { margin-left: auto; align-self: flex-start; font-size: 0.67rem; font-weight: 700; color: var(--orange); background: rgba(244,98,31,0.09); padding: 0.18rem 0.55rem; border-radius: 50px; white-space: nowrap; }
+    .result-footer {
+      border-top: 1px solid var(--border);
+      padding: 0.75rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .result-footer-label { font-size: 0.7rem; color: var(--gray-light); }
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--dark);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .share-btn:hover { border-color: var(--orange); color: var(--orange); background: rgba(244,98,31,0.05); }
+    .share-btn.copied { border-color: #22C55E; color: #16A34A; background: rgba(34,197,94,0.06); }
+
+    /* ── LOCATION BUTTON ── */
+    .location-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--dark);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .location-btn:hover { border-color: var(--orange); color: var(--orange); background: rgba(244,98,31,0.05); }
+    .location-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .card-location-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      width: 100%;
+      margin-top: 0.85rem;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--gray);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .card-location-btn:hover { border-color: var(--orange); color: var(--orange); background: rgba(244,98,31,0.04); }
+    .card-location-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials-section { background: linear-gradient(180deg, var(--cream-dark) 0%, var(--cream) 100%); }
+    .testimonials-inner { max-width: 1040px; margin: 0 auto; }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 3rem;
+    }
+    .testimonial-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      border: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .testimonial-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05); }
+    .t-stars { color: var(--amber); font-size: 0.82rem; letter-spacing: 1px; }
+    .t-quote { font-size: 0.9rem; color: var(--dark); line-height: 1.7; flex: 1; }
+    .t-author { display: flex; align-items: center; gap: 0.75rem; }
+    .t-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+    }
+    .t-name { font-size: 0.85rem; font-weight: 700; color: var(--dark); }
+    .t-meta { font-size: 0.75rem; color: var(--gray); }
+
+    /* ── CTA ── */
+    .cta-wrap { max-width: 1060px; margin: 0 auto; }
+    .cta-block {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      border-radius: var(--radius-lg);
+      padding: clamp(3rem, 6vw, 5rem) clamp(2rem, 5vw, 4rem);
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 56px rgba(244,98,31,0.38), 0 4px 16px rgba(0,0,0,0.10);
+    }
+    .cta-block::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 280px; height: 280px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+    .cta-block::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -40px;
+      width: 220px; height: 220px;
+      background: rgba(0,0,0,0.08);
+      border-radius: 50%;
+    }
+    .cta-block h2 {
+      font-size: clamp(1.75rem, 4vw, 2.6rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 0.75rem;
+      position: relative; z-index: 1;
+    }
+    .cta-block p { font-size: 1rem; opacity: 0.85; margin-bottom: 2rem; position: relative; z-index: 1; }
+    .btn-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: white;
+      color: var(--orange);
+      padding: 0.85rem 2rem;
+      border-radius: 50px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+      position: relative; z-index: 1;
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.55);
+      padding: 3.5rem clamp(1.25rem, 4vw, 3rem) 2.5rem;
+    }
+    .footer-inner {
+      max-width: 1060px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 2.5rem;
+      margin-bottom: 3rem;
+    }
+    @media (max-width: 720px) {
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+    .footer-brand-logo {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+    .footer-brand-logo span { color: var(--orange); }
+    .footer-brand p { font-size: 0.83rem; line-height: 1.7; max-width: 240px; }
+    .footer-col h4 { font-size: 0.78rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1rem; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+    .footer-col a { font-size: 0.83rem; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.15s; }
+    .footer-col a:hover { color: white; }
+    .footer-bottom {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding-top: 1.75rem;
+      border-top: 1px solid rgba(255,255,255,0.14);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-left">
+      <a href="#" class="nav-logo">
+        <svg height="34" width="34" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+          <circle cx="18" cy="18" r="17" fill="#111827"/>
+          <circle cx="18" cy="18" r="17" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+          <text x="18" y="23.5" text-anchor="middle" font-family="Impact,'Arial Black',Arial,sans-serif" font-size="19"><tspan fill="white">F</tspan><tspan fill="#F4621F">S</tspan></text>
+        </svg>
+        Food <span>Showdown</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#top-picks">Top Picks</a></li>
+        <li><a href="#try-it">Try It</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#features">Features</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <a href="#" class="nav-sign-in">Sign In</a>
+      <a href="#try-it" class="nav-cta">Get Started Free</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" style="padding-top: calc(68px + clamp(3rem, 8vw, 6rem));">
+    <div class="hero-text fade-up">
+      <div class="hero-badge">✦ AI-Powered Recommendations</div>
+      <h1>The fastest way to answer <em>"Where should we eat?"</em></h1>
+      <p class="section-sub">Food Showdown reads how your family feels — budget, mood, diet — and recommends the perfect fast food spot in seconds.</p>
+      <div class="hero-buttons">
+        <a href="#try-it" class="btn-primary">Try It Free →</a>
+        <a href="#top-picks" class="btn-outline">See Top Picks</a>
+      </div>
+      <p style="font-size:0.8rem;color:var(--gray-light);margin-top:0.75rem;">No account needed. Free forever.</p>
+    </div>
+
+    <div class="hero-visual fade-up fade-up-delay-2">
+      <div class="hero-card">
+        <div class="hero-card-top">
+          <div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div>
+        </div>
+        <div class="hero-card-body">
+          <div class="chat-user-msg">
+            <div class="chat-bubble-user">We're vegetarian and want something healthy tonight</div>
+          </div>
+          <div class="chat-ai-label">
+            <div class="ai-dot">🤖</div>
+            <span>Food Showdown AI is recommending…</span>
+          </div>
+          <div class="mock-rec">
+            <div class="mock-rec-icon">🌯</div>
+            <div class="mock-rec-info">
+              <div class="mock-stars">★★★★★</div>
+              <h4>Chipotle</h4>
+              <p>Build-your-own bowls with fresh veggies, sofritas, and guac — fully customisable and vegetarian-friendly.</p>
+            </div>
+            <div class="mock-rec-badge">#1 Pick</div>
+          </div>
+          <div class="mock-rec">
+            <div class="mock-rec-icon">🥗</div>
+            <div class="mock-rec-info">
+              <div class="mock-stars">★★★★☆</div>
+              <h4>Panera Bread</h4>
+              <p>Grain bowls, seasonal salads, and hearty soups — all made with real, clean ingredients.</p>
+            </div>
+            <div class="mock-rec-badge">#2 Pick</div>
+          </div>
+        </div>
+        <div class="hero-card-footer">
+          <div class="footer-input-mock">Ask another question…</div>
+          <div class="footer-send">→</div>
+        </div>
+      </div>
+      <div class="hero-float-badge">
+        <div class="float-icon">⭐</div>
+        <div>
+          <div class="float-label">4.9 / 5 rating</div>
+          <div class="float-sub">From 12,000+ family reviews</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat-item fade-up">
+        <div class="stat-num">50<span>+</span></div>
+        <div class="stat-label">Restaurants covered</div>
+      </div>
+      <div class="stat-item fade-up fade-up-delay-1">
+        <div class="stat-num">12<span>k+</span></div>
+        <div class="stat-label">Family reviews</div>
+      </div>
+      <div class="stat-item fade-up fade-up-delay-2">
+        <div class="stat-num">4.9<span>★</span></div>
+        <div class="stat-label">Average rating</div>
+      </div>
+      <div class="stat-item fade-up fade-up-delay-3">
+        <div class="stat-num">100<span>%</span></div>
+        <div class="stat-label">Free to use</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE DEMO -->
+  <section class="demo" id="try-it">
+    <div class="demo-inner">
+      <div class="section-eyebrow fade-up">✦ Try It Now</div>
+      <div class="section-title fade-up">Just tell us how you feel</div>
+      <p class="section-sub fade-up">Click a question or type your own — and see exactly what Food Showdown would recommend.</p>
+
+      <div class="demo-pills fade-up">
+        <button class="demo-pill" onclick="askQuestion(this,'What is the healthiest fast food option?')">🥗 Healthiest option?</button>
+        <button class="demo-pill" onclick="askQuestion(this,'What is the cheapest fast food?')">💸 Cheapest fast food?</button>
+        <button class="demo-pill" onclick="askQuestion(this,'We are vegetarian and want the best pasta')">🍝 Vegetarian pasta?</button>
+        <button class="demo-pill" onclick="askQuestion(this,'Kid-friendly and open late')">🧒 Kid-friendly & late?</button>
+        <button class="demo-pill" onclick="askQuestion(this,'I want something spicy tonight')">🌶️ Something spicy?</button>
+        <button class="demo-pill" onclick="askQuestion(this,'Best burger under $8')">🍔 Best burger under $8?</button>
+      </div>
+
+      <div class="demo-input-row fade-up">
+        <input class="demo-input" id="demo-input" type="text"
+          placeholder='Or type your own, e.g. "We need vegan options tonight"…'
+          onkeydown="if(event.key==='Enter') submitInput()" />
+        <button class="demo-ask-btn" id="demo-btn" onclick="submitInput()">Ask →</button>
+      </div>
+
+      <div class="demo-loading" id="demo-loading">
+        <div class="ldot"></div><div class="ldot"></div><div class="ldot"></div>
+      </div>
+
+      <div class="demo-result" id="demo-result">
+        <div class="result-header">
+          <span class="result-label">You asked:</span>
+          <span class="result-q" id="result-question"></span>
+        </div>
+        <div class="result-recs" id="result-recs"></div>
+        <div class="result-footer">
+          <span class="result-footer-label">Recommended by Food Showdown</span>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button class="location-btn" id="location-btn" onclick="findNearest(currentTopRestaurant, this)">📍 Find Nearest</button>
+            <button class="share-btn" id="share-btn" onclick="shareResult()">
+              <span id="share-icon">↗</span>
+              <span id="share-label">Share this pick</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOP RATED -->
+  <section id="top-picks" style="background: var(--cream);">
+    <div class="top-rated-inner">
+      <div class="top-rated-header fade-up">
+        <div>
+          <div class="section-eyebrow">⭐ Community Favourites</div>
+          <div class="section-title">Top-rated spots right now</div>
+          <p class="section-sub">Based on thousands of real customer ratings — these are the places families keep coming back to.</p>
+        </div>
+        <div class="last-updated">
+          <div class="live-dot"></div>
+          Updated daily from customer reviews
+        </div>
+      </div>
+      <div class="top-cards">
+
+        <div class="top-card fade-up">
+          <div class="top-card-header" style="
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/3d/Wingstop_wings.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 160px;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.15) 100%);border-radius:inherit;"></div>
+            <div class="rank-pill" style="z-index:1;">#1 Ranked</div>
+            <div class="trending-pill" style="z-index:1;">🔥 Trending</div>
+          </div>
+          <div class="top-card-body">
+            <div class="card-meta">
+              <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/0f/Wingstop_logo.svg/320px-Wingstop_logo.svg.png"
+                   alt="Wingstop logo"
+                   style="height:28px;object-fit:contain;display:block;margin-bottom:0.4rem;"
+                   onerror="this.style.display='none';document.getElementById('wingstop-fallback').style.display='block'">
+              <span id="wingstop-fallback" style="display:none;font-size:1.15rem;font-weight:800;letter-spacing:-0.4px;">Wingstop</span>
+            </div>
+            <div class="card-meta" style="margin-top:0.15rem;">
+              <span class="card-stars">★★★★★</span>
+              <span class="card-review-count">12,400 reviews</span>
+            </div>
+            <h3 style="display:none;">Wingstop</h3>
+            <div class="card-tags">
+              <span class="card-tag">🏆 Community #1</span>
+              <span class="card-tag">🍗 Wings</span>
+              <span class="card-tag">🌶️ Bold Flavours</span>
+            </div>
+            <p class="card-quote">"The Mango Habanero wings are absolutely addictive. Best wings we've ever had — and the variety of sauces means everyone finds something they love."</p>
+            <div class="card-reasons">
+              <div class="card-reasons-label">Why families love it</div>
+              <ul>
+                <li>40+ sauce flavours for every taste</li>
+                <li>Generous portions at fair prices</li>
+                <li>Mild lemon pepper is perfect for kids</li>
+              </ul>
+            </div>
+            <button class="card-location-btn" onclick="findNearest('Wingstop', this)">📍 Find Nearest Location</button>
+          </div>
+        </div>
+
+        <div class="top-card fade-up fade-up-delay-1">
+          <div class="top-card-header" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/b/b2/ChickFilA-ChickenSandwich.jpg');background-size:cover;background-position:center;height:160px;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.15) 100%);border-radius:inherit;"></div>
+            <div class="rank-pill" style="z-index:1;">#2 Ranked</div>
+            <div class="trending-pill" style="z-index:1;">👨‍👩‍👧 Family Fave</div>
+          </div>
+          <div class="top-card-body">
+            <div class="card-meta">
+              <span class="card-stars">★★★★★</span>
+              <span class="card-review-count">10,850 reviews</span>
+            </div>
+            <h3>Chick-fil-A</h3>
+            <div class="card-tags">
+              <span class="card-tag">⚡ Fast Service</span>
+              <span class="card-tag">🥗 Grilled Options</span>
+              <span class="card-tag">🧒 Kid-Friendly</span>
+            </div>
+            <p class="card-quote">"The staff are always so friendly and the food is consistently great. Nuggets, waffle fries, and milkshake — our kids ask for this every Friday without fail."</p>
+            <div class="card-reasons">
+              <div class="card-reasons-label">Why families love it</div>
+              <ul>
+                <li>Consistently top-rated for customer service</li>
+                <li>Grilled options for health-conscious eaters</li>
+                <li>Kid meals that kids actually want</li>
+              </ul>
+            </div>
+            <button class="card-location-btn" onclick="findNearest('Chick-fil-A', this)">📍 Find Nearest Location</button>
+          </div>
+        </div>
+
+        <div class="top-card fade-up fade-up-delay-2">
+          <div class="top-card-header" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/b/be/Chicken_burrito_bowl_with_tortilla_chips_and_drink_at_Chipotle_-_August_2022_-_Sarah_Stierch.jpg');background-size:cover;background-position:center;height:160px;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.15) 100%);border-radius:inherit;"></div>
+            <div class="rank-pill" style="z-index:1;">#3 Ranked</div>
+            <div class="trending-pill" style="z-index:1;">🥗 Healthiest</div>
+          </div>
+          <div class="top-card-body">
+            <div class="card-meta">
+              <span class="card-stars">★★★★★</span>
+              <span class="card-review-count">9,300 reviews</span>
+            </div>
+            <h3>Chipotle</h3>
+            <div class="card-tags">
+              <span class="card-tag">🌱 Veg Friendly</span>
+              <span class="card-tag">🥗 Fresh Ingredients</span>
+              <span class="card-tag">🔧 Customisable</span>
+            </div>
+            <p class="card-quote">"Fresh ingredients you can actually see being prepared. Build-your-own bowls mean everyone gets exactly what they want. Our healthy weeknight go-to."</p>
+            <div class="card-reasons">
+              <div class="card-reasons-label">Why families love it</div>
+              <ul>
+                <li>Fully customisable for picky eaters</li>
+                <li>Real, fresh ingredients — no freezers</li>
+                <li>Excellent vegetarian and vegan options</li>
+              </ul>
+            </div>
+            <button class="card-location-btn" onclick="findNearest('Chipotle', this)">📍 Find Nearest Location</button>
+          </div>
+        </div>
+
+        <div class="top-card fade-up">
+          <div class="top-card-header" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/1/1e/Wendy%27s_Burger_and_Fries_-_Fast_Food_%2834291971430%29.jpg');background-size:cover;background-position:center;height:160px;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.15) 100%);border-radius:inherit;"></div>
+            <div class="rank-pill" style="z-index:1;">#4 Ranked</div>
+            <div class="trending-pill" style="z-index:1;">💸 Best Value</div>
+          </div>
+          <div class="top-card-body">
+            <div class="card-meta">
+              <span class="card-stars">★★★★☆</span>
+              <span class="card-review-count">8,700 reviews</span>
+            </div>
+            <h3>Wendy's</h3>
+            <div class="card-tags">
+              <span class="card-tag">🍔 Fresh Beef</span>
+              <span class="card-tag">🥤 Iconic Frosty</span>
+              <span class="card-tag">💰 Great Deals</span>
+            </div>
+            <p class="card-quote">"Fresh, never-frozen beef makes a real difference. The Frosty is a family classic and the spicy chicken sandwich is seriously underrated at this price."</p>
+            <div class="card-reasons">
+              <div class="card-reasons-label">Why families love it</div>
+              <ul>
+                <li>Fresh beef patties — never frozen</li>
+                <li>Iconic Frosty desserts kids adore</li>
+                <li>4 for $4 deals stretch any budget</li>
+              </ul>
+            </div>
+            <button class="card-location-btn" onclick="findNearest('Wendy\'s', this)">📍 Find Nearest Location</button>
+          </div>
+        </div>
+
+        <div class="top-card fade-up fade-up-delay-1">
+          <div class="top-card-header" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/8/8c/Taco_Bell_Mexican_Pizza%2C_Framingham_MA.jpg');background-size:cover;background-position:center;height:160px;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.15) 100%);border-radius:inherit;"></div>
+            <div class="rank-pill" style="z-index:1;">#5 Ranked</div>
+            <div class="trending-pill" style="z-index:1;">🌮 Most Variety</div>
+          </div>
+          <div class="top-card-body">
+            <div class="card-meta">
+              <span class="card-stars">★★★★☆</span>
+              <span class="card-review-count">7,900 reviews</span>
+            </div>
+            <h3>Taco Bell</h3>
+            <div class="card-tags">
+              <span class="card-tag">💰 Super Cheap</span>
+              <span class="card-tag">🌙 Open Late</span>
+              <span class="card-tag">🌱 Veg Options</span>
+            </div>
+            <p class="card-quote">"You literally cannot spend more than $20 feeding a family of five here. The menu has something for everyone and the late-night hours are a lifesaver."</p>
+            <div class="card-reasons">
+              <div class="card-reasons-label">Why families love it</div>
+              <ul>
+                <li>Cheapest full meal of any fast food chain</li>
+                <li>Open late — often until midnight or later</li>
+                <li>Huge variety with easy vegetarian swaps</li>
+              </ul>
+            </div>
+            <button class="card-location-btn" onclick="findNearest('Taco Bell', this)">📍 Find Nearest Location</button>
+          </div>
+        </div>
+
+        <div class="top-card fade-up fade-up-delay-2">
+          <div class="top-card-header" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/9/91/Popeyes_chicken_sandwich.jpg');background-size:cover;background-position:center;height:160px;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.15) 100%);border-radius:inherit;"></div>
+            <div class="rank-pill" style="z-index:1;">#6 Ranked</div>
+            <div class="trending-pill" style="z-index:1;">🏆 Best Sandwich</div>
+          </div>
+          <div class="top-card-body">
+            <div class="card-meta">
+              <span class="card-stars">★★★★☆</span>
+              <span class="card-review-count">6,500 reviews</span>
+            </div>
+            <h3>Popeyes</h3>
+            <div class="card-tags">
+              <span class="card-tag">🌶️ Bold Cajun</span>
+              <span class="card-tag">🍗 Crispy Chicken</span>
+              <span class="card-tag">🔥 Fan Favourite</span>
+            </div>
+            <p class="card-quote">"The chicken sandwich that broke the internet — for a reason. Crispy, juicy, perfectly seasoned. The Cajun sides make it feel like a proper meal."</p>
+            <div class="card-reasons">
+              <div class="card-reasons-label">Why families love it</div>
+              <ul>
+                <li>Nationally rated #1 chicken sandwich</li>
+                <li>Cajun-seasoned sides unlike any other chain</li>
+                <li>Great for spice lovers of all ages</li>
+              </ul>
+            </div>
+            <button class="card-location-btn" onclick="findNearest('Popeyes', this)">📍 Find Nearest Location</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how-it-works">
+    <div class="how-inner">
+      <div style="text-align:center;" class="fade-up">
+        <div class="section-eyebrow">How It Works</div>
+        <div class="section-title">A recommendation in three steps</div>
+        <p class="section-sub" style="margin:0 auto;">No apps to download, no accounts needed. Just type and go.</p>
+      </div>
+      <div class="how-grid">
+        <div class="how-step fade-up">
+          <div class="step-num">1</div>
+          <h3>Tell us what you want</h3>
+          <p>Type anything — a craving, a budget, a dietary need, or just your mood right now. There are no wrong answers.</p>
+        </div>
+        <div class="how-step fade-up fade-up-delay-2">
+          <div class="step-num">2</div>
+          <h3>AI finds your match</h3>
+          <p>Our AI reads your request and instantly identifies the best fast food spot for your specific situation and family.</p>
+        </div>
+        <div class="how-step fade-up fade-up-delay-4">
+          <div class="step-num">3</div>
+          <h3>Go eat and enjoy</h3>
+          <p>Get a confident recommendation with photos, a star rating, and a clear explanation of why it's right for you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="features-inner">
+      <div class="fade-up">
+        <div class="section-eyebrow">Features</div>
+        <div class="section-title">Built for real family decisions</div>
+        <p class="section-sub">Everything you need to make dinner time stress-free, every night of the week.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card fade-up">
+          <div class="card-num-bg">01</div>
+          <span class="card-num-label">01</span>
+          <h3>Live Community Rankings</h3>
+          <p>See the highest-rated fast food spots based on real, verified family reviews — updated daily so you always see what's trending.</p>
+        </div>
+        <div class="feature-card fade-up fade-up-delay-1">
+          <div class="card-num-bg">02</div>
+          <span class="card-num-label">02</span>
+          <h3>Natural Language AI</h3>
+          <p>Ask in plain English. Health, budget, diet restrictions, or cravings — our AI understands context and gives you a confident answer.</p>
+        </div>
+        <div class="feature-card fade-up fade-up-delay-2">
+          <div class="card-num-bg">03</div>
+          <span class="card-num-label">03</span>
+          <h3>Photorealistic Food Images</h3>
+          <p>Every recommendation includes AI-generated, ultra-realistic images of signature dishes so you know exactly what you're getting.</p>
+        </div>
+        <div class="feature-card fade-up fade-up-delay-3">
+          <div class="card-num-bg">04</div>
+          <span class="card-num-label">04</span>
+          <h3>Real Brand Logos</h3>
+          <p>Official restaurant logos on every card so recommendations look polished, familiar, and immediately trustworthy.</p>
+        </div>
+        <div class="feature-card fade-up fade-up-delay-4">
+          <div class="card-num-bg">05</div>
+          <span class="card-num-label">05</span>
+          <h3>Diet-Aware Matching</h3>
+          <p>Vegetarian, vegan, gluten-free, or health-conscious — Food Showdown finds the right option for every member of your family.</p>
+        </div>
+        <div class="feature-card fade-up fade-up-delay-5">
+          <div class="card-num-bg">06</div>
+          <span class="card-num-label">06</span>
+          <h3>Budget-Conscious Results</h3>
+          <p>Set a spending limit and we'll surface the best value options so your family eats well without breaking the bank.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials-section">
+    <div class="testimonials-inner">
+      <div class="fade-up" style="text-align:center;">
+        <div class="section-eyebrow">Testimonials</div>
+        <div class="section-title">Families who use Food Showdown</div>
+        <p class="section-sub" style="margin:0 auto;">Real families who solved the dinner debate for good.</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card fade-up">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-quote">"We used to spend 20 minutes arguing about where to go every single night. Food Showdown ended that instantly. The AI actually understands what we're looking for."</p>
+          <div class="t-author">
+            <div class="t-avatar" style="background: linear-gradient(135deg,#FF6B35,#FF9A5C);">SM</div>
+            <div>
+              <div class="t-name">Sarah M.</div>
+              <div class="t-meta">Mom of 3 · Houston, TX</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card fade-up fade-up-delay-2">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-quote">"I asked for the healthiest option under $10 for two kids and it nailed it perfectly. The food photos made it easy to explain the choice to my picky 7-year-old."</p>
+          <div class="t-author">
+            <div class="t-avatar" style="background: linear-gradient(135deg,#6366F1,#8B5CF6);">JT</div>
+            <div>
+              <div class="t-name">James T.</div>
+              <div class="t-meta">Dad of 2 · San Diego, CA</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card fade-up fade-up-delay-4">
+          <div class="t-stars">★★★★★</div>
+          <p class="t-quote">"My teenage daughter is vegetarian and my son only eats plain food. Food Showdown is the first app that actually finds somewhere that makes everyone happy."</p>
+          <div class="t-author">
+            <div class="t-avatar" style="background: linear-gradient(135deg,#0EA5E9,#38BDF8);">PR</div>
+            <div>
+              <div class="t-name">Priya R.</div>
+              <div class="t-meta">Parent · New York, NY</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="background: var(--cream-dark);">
+    <div class="cta-wrap">
+      <div class="cta-block fade-up">
+        <h2>Ready to end the dinner debate?</h2>
+        <p>Join thousands of families who never argue about where to eat anymore.</p>
+        <a href="#try-it" class="btn-white">Get Started — It's Free →</a>
+        <p style="font-size:0.82rem;margin-top:0.75rem;opacity:0.7;">No account needed. Free forever.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="footer-brand-logo">
+          <svg height="34" width="34" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+            <circle cx="18" cy="18" r="17" fill="#0f172a"/>
+            <circle cx="18" cy="18" r="17" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+            <text x="18" y="23.5" text-anchor="middle" font-family="Impact,'Arial Black',Arial,sans-serif" font-size="19"><tspan fill="white">F</tspan><tspan fill="#F4621F">S</tspan></text>
+          </svg>
+          Food <span>Showdown</span>
+        </a>
+        <p>AI-powered fast food recommendations built for families. Stop arguing about where to eat — let us handle it.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#top-picks">Top Picks</a></li>
+          <li><a href="#try-it">Try It Now</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Food Showdown. All rights reserved.</span>
+      <span>Made with ♥ for families everywhere.</span>
+    </div>
+  </footer>
+
+  <script>
+    /* ── NAV SMOOTH SCROLL WITH OFFSET ── */
+    const NAV_HEIGHT = 68;
+
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', e => {
+        const id = link.getAttribute('href').slice(1);
+        if (!id) return;
+        const target = document.getElementById(id);
+        if (!target) return;
+        e.preventDefault();
+        const top = target.getBoundingClientRect().top + window.scrollY - NAV_HEIGHT;
+        window.scrollTo({ top, behavior: 'smooth' });
+      });
+    });
+
+    /* ── ACTIVE NAV LINK ON SCROLL ── */
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+    const sections = Array.from(navLinks)
+      .map(a => document.getElementById(a.getAttribute('href').slice(1)))
+      .filter(Boolean);
+
+    function updateActiveLink() {
+      const scrollY = window.scrollY + NAV_HEIGHT + 10;
+      let current = null;
+      sections.forEach(section => {
+        if (section.offsetTop <= scrollY) current = section;
+      });
+      navLinks.forEach(a => {
+        const matches = current && a.getAttribute('href') === '#' + current.id;
+        a.classList.toggle('active', matches);
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveLink, { passive: true });
+    updateActiveLink();
+
+    /* ── SCROLL ANIMATIONS ── */
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    /* ── DEMO LOGIC ── */
+    const answers = {
+      healthy: { recs: [
+        { emoji:"🥗", name:"Chipotle", stars:"★★★★★", tag:"Healthiest Pick", desc:"Fresh ingredients, customisable bowls — go for a salad bowl with grilled chicken, fajita veggies, and salsa for a protein-packed, low-calorie meal." },
+        { emoji:"🥙", name:"Panera Bread", stars:"★★★★☆", tag:"Clean Eating", desc:"Soups, grain bowls, and salads made with real ingredients. Their You Pick Two lets you mix a salad and a light soup without any guilt." },
+        { emoji:"🍗", name:"Chick-fil-A", stars:"★★★★☆", tag:"Lean Protein", desc:"Grilled chicken nuggets and the market salad are standout lighter options — high protein, lower in calories than most fast food alternatives." }
+      ]},
+      cheap: { recs: [
+        { emoji:"🌮", name:"Taco Bell", stars:"★★★★★", tag:"Best Value", desc:"Feed a whole family for under $20. The $2 burritos and value menu are unbeatable — huge portions, tons of variety, always cheap." },
+        { emoji:"🍔", name:"McDonald's", stars:"★★★★☆", tag:"Dollar Menu", desc:"The McDouble and McChicken are legendary for a reason. The value menu stretches every dollar and kids love Happy Meals." },
+        { emoji:"🍕", name:"Little Caesars", stars:"★★★☆☆", tag:"Cheapest Pizza", desc:"A whole hot-and-ready pizza for $5–$6. Nothing beats it for feeding a big family fast without spending much at all." }
+      ]},
+      pasta: { recs: [
+        { emoji:"🍝", name:"Fazoli's", stars:"★★★★★", tag:"Best Vegetarian Pasta", desc:"A fast food chain built around pasta — spaghetti marinara, fettuccine alfredo, and baked ziti are all vegetarian and absolutely delicious." },
+        { emoji:"🫙", name:"Olive Garden", stars:"★★★★☆", tag:"Classic Italian", desc:"Endless breadsticks, a rich salad, and pasta dishes like cheese ravioli and eggplant parmigiana make this a vegetarian favourite." },
+        { emoji:"🍕", name:"Pizza Hut", stars:"★★★☆☆", tag:"Pasta + Pizza", desc:"Tuscani pasta dishes can be ordered meat-free — pair with a cheesy veggie pizza for a filling vegetarian feast." }
+      ]},
+      kids: { recs: [
+        { emoji:"🍗", name:"Chick-fil-A", stars:"★★★★★", tag:"Best for Kids", desc:"Nuggets, waffle fries, and milkshakes — kids go crazy for it. Clean restaurants, friendly staff, and open until 10pm most nights." },
+        { emoji:"🍔", name:"McDonald's", stars:"★★★★☆", tag:"Open Late", desc:"Happy Meals keep the kids happy and many locations are open 24/7. PlayPlaces at select locations are a bonus for little ones." },
+        { emoji:"🌮", name:"Taco Bell", stars:"★★★☆☆", tag:"Late Night", desc:"Open until midnight or later at most locations. Kids enjoy the mild quesadillas and cinnamon twists as a treat." }
+      ]},
+      spicy: { recs: [
+        { emoji:"🌶️", name:"Wingstop", stars:"★★★★★", tag:"Spiciest Pick", desc:"The Mango Habanero and Atomic wings are legendary for heat-lovers. Crispy, saucy, and completely addictive if you can handle the fire." },
+        { emoji:"🐔", name:"Popeyes", stars:"★★★★☆", tag:"Spicy Classic", desc:"The spicy chicken sandwich has a devoted following — crispy, juicy, and packs serious heat with every single bite." },
+        { emoji:"🌮", name:"Taco Bell", stars:"★★★☆☆", tag:"Customisable Heat", desc:"Add diablo sauce to anything on the menu for a quick kick. The Spicy Potato Taco is a sleeper hit for spice fans." }
+      ]},
+      burger: { recs: [
+        { emoji:"🍔", name:"McDonald's", stars:"★★★★★", tag:"Best Value Burger", desc:"The McDouble at around $2.50 is the undisputed king of cheap burgers — two patties, cheese, pickles, and all the fixings." },
+        { emoji:"🍔", name:"Wendy's", stars:"★★★★☆", tag:"Fresh Never Frozen", desc:"The Jr. Bacon Cheeseburger is under $4 and made with fresh beef. Wendy's quality at this price point is hard to beat." },
+        { emoji:"🍔", name:"Burger King", stars:"★★★☆☆", tag:"Flame-Grilled", desc:"The Whopper Jr. often drops to under $3 with app deals. Flame-grilled taste that genuinely stands out from the competition." }
+      ]}
+    };
+
+    function classify(q) {
+      q = q.toLowerCase();
+      if (/health|light|low.cal|clean|salad|fit|diet|nutrition|fresh/.test(q)) return 'healthy';
+      if (/cheap|budget|afford|inexpensive|value|dollar|price|cost|spend/.test(q)) return 'cheap';
+      if (/pasta|vegetarian|vegan|plant|veggie/.test(q)) return 'pasta';
+      if (/kid|child|late|night|open/.test(q)) return 'kids';
+      if (/spic|hot|fire|heat|burn|pepper|habanero/.test(q)) return 'spicy';
+      if (/burger|beef|patty/.test(q)) return 'burger';
+      return null;
+    }
+
+    function buildRecs(recs) {
+      return recs.map(r => `
+        <div class="result-rec">
+          <div class="rr-emoji">${r.emoji}</div>
+          <div class="rr-body">
+            <div class="rr-stars">${r.stars}</div>
+            <h4>${r.name}</h4>
+            <p>${r.desc}</p>
+          </div>
+          <div class="rr-tag">${r.tag}</div>
+        </div>`).join('');
+    }
+
+    let currentShareText = '';
+    let currentTopRestaurant = '';
+
+    function showResult(question, recs) {
+      const result = document.getElementById('demo-result');
+      document.getElementById('result-question').textContent = `"${question}"`;
+      document.getElementById('result-recs').innerHTML = buildRecs(recs);
+      document.getElementById('demo-loading').classList.remove('visible');
+
+      // build share text from top pick
+      currentTopRestaurant = recs[0].name;
+      currentShareText = `🍔 Food Showdown recommends ${recs[0].name} tonight!\n"${question}"\n\nCheck it out at Food Showdown — the AI fast food picker for families.`;
+
+      // reset share button
+      const btn = document.getElementById('share-btn');
+      btn.classList.remove('copied');
+      document.getElementById('share-icon').textContent = '↗';
+      document.getElementById('share-label').textContent = 'Share this pick';
+
+      result.classList.remove('visible');
+      void result.offsetWidth;
+      result.classList.add('visible');
+      result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function shareResult() {
+      const btn = document.getElementById('share-btn');
+      if (navigator.share) {
+        navigator.share({
+          title: 'Food Showdown pick',
+          text: currentShareText,
+          url: window.location.href
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(currentShareText + '\n' + window.location.href).then(() => {
+          btn.classList.add('copied');
+          document.getElementById('share-icon').textContent = '✓';
+          document.getElementById('share-label').textContent = 'Copied to clipboard!';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            document.getElementById('share-icon').textContent = '↗';
+            document.getElementById('share-label').textContent = 'Share this pick';
+          }, 2500);
+        });
+      }
+    }
+
+    function findNearest(restaurantName, btn) {
+      const origHTML = btn.innerHTML;
+      btn.innerHTML = '⏳ Getting location…';
+      btn.disabled = true;
+
+      function openMaps(lat, lng) {
+        const q = encodeURIComponent(restaurantName);
+        const url = (lat !== null)
+          ? `https://www.google.com/maps/search/${q}/@${lat},${lng},13z`
+          : `https://www.google.com/maps/search/${encodeURIComponent(restaurantName + ' near me')}`;
+        window.open(url, '_blank');
+        btn.innerHTML = origHTML;
+        btn.disabled = false;
+      }
+
+      if (!navigator.geolocation) { openMaps(null, null); return; }
+
+      navigator.geolocation.getCurrentPosition(
+        pos => openMaps(pos.coords.latitude, pos.coords.longitude),
+        ()   => openMaps(null, null),
+        { timeout: 8000 }
+      );
+    }
+
+    function askQuestion(pill, question) {
+      document.querySelectorAll('.demo-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      document.getElementById('demo-input').value = question;
+      runQuery(question);
+    }
+
+    function submitInput() {
+      const q = document.getElementById('demo-input').value.trim();
+      if (!q) return;
+      document.querySelectorAll('.demo-pill').forEach(p => p.classList.remove('active'));
+      runQuery(q);
+    }
+
+    function runQuery(question) {
+      const btn = document.getElementById('demo-btn');
+      const loading = document.getElementById('demo-loading');
+      document.getElementById('demo-result').classList.remove('visible');
+      btn.disabled = true;
+      loading.classList.add('visible');
+      setTimeout(() => {
+        btn.disabled = false;
+        loading.classList.remove('visible');
+        const key = classify(question);
+        const recs = key ? answers[key].recs : [
+          { emoji:"🍔", name:"McDonald's", stars:"★★★★★", tag:"Family Favourite", desc:"When in doubt, McDonald's has something for everyone — burgers, nuggets, salads, and more at prices that work for any family." },
+          { emoji:"🌮", name:"Taco Bell", stars:"★★★★☆", tag:"Most Flexible", desc:"With dozens of customisable menu items, Taco Bell adapts to almost any craving or dietary need your family has tonight." }
+        ];
+        showResult(question, recs);
+      }, 950);
+    }
+  </script>
+
+</body>
+</html>
